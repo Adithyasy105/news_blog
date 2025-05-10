@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Global News Today</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html" >Privacy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container contact-section">
+    <section class="about-section">
+      <!-- Response Message -->
+      <p id="response-message" style="color: green; font-weight: bold;"></p>
+
+      <h2>Get in Touch</h2>
+      <p><strong>Email:</strong> info@globalnewstoday.com</p>
+      <p><strong>Location:</strong> India</p>
+      <p><strong>Phone:</strong> +91-9876543210</p>
+      <form class="contact-form" id="contact-form">
+        <input type="text" placeholder="Your Name" id="name" required />
+        <input type="email" placeholder="Your Email" id="email" required />
+        <textarea placeholder="Your Message" rows="5" id="message" required></textarea>
+        <button type="submit">Send Message</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Global News Today. All rights reserved.</p>
+    <p>Powered by Global News API & trusted international news sources.</p>
+    <p>
+      <a href="privacy.html">Privacy Policy</a> |
+      <a href="about.html">About Us</a> |
+      <a href="contact.html">Contact</a>
+    </p>
+    <p>Stay informed. Stay updated. Everywhere, every moment.</p>
+  </footer>
+
+  <script>
+    // Handle form submission
+    document.getElementById('contact-form').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the form from refreshing the page
+
+      // Show the response message
+      document.getElementById('response-message').innerText = 'Response Submitted. Thank you for reaching out!';
+      
+      // Optionally, clear the form fields
+      document.getElementById('name').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('message').value = '';
+    });
+  </script>
+
+</body>
+</html>

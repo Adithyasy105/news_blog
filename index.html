@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global News Today</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body >
+  <header>
+    <div class="container">
+      <h1>Global News Today</h1>
+      <nav>
+        <a href="index.html" class="active">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html" >Privacy</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- AdSense Placeholder -->
+  <div class="ad-banner">Ad Placeholder</div>
+
+  <section class="search">
+    <input type="text" id="searchInput" placeholder="Search news...">
+    <button onclick="searchNews()">Search</button>
+  </section>
+
+  <main class="container">
+    <h2>Trending News</h2>
+    <div id="newsContainer" class="news-grid">
+      <!-- News cards will be dynamically inserted here -->
+    </div>
+
+    <!-- Load More button -->
+    <div style="text-align: center; margin: 20px;">
+      <button id="loadMoreBtn" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+        Load More
+      </button>
+    </div>
+  </main>
+
+  <footer>
+  <p>&copy; 2025 Global News Today. All rights reserved.</p>
+  <p>Powered by Global News API & trusted international news sources.</p>
+  <p>
+    <a href="privacy.html">Privacy Policy</a> |
+    <a href="about.html">About Us</a> |
+    <a href="contact.html">Contact</a>
+  </p>
+  <p>Stay informed. Stay updated. Everywhere, every moment.</p>
+</footer>
+
+
+  <script src="js/script.js"></script>
+</body>
+</html>
