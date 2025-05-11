@@ -1,13 +1,15 @@
-const API_KEY = '058b442bb8347ba4ef40337c60dd4669'; // Replace with your actual GNews.io API key
+const API_KEY = '058b442bb8347ba4ef40337c60dd4669';
 const newsContainer = document.getElementById('newsContainer');
 let currentPage = 1;
 const pageSize = 10;
 let currentQuery = '';
 let isSearching = false;
+let allArticles = []; // For storing loaded articles
 
+// Fetch from API
 function fetchNews(page = 1, query = '') {
   const endpoint = query
-    ? `https://gnews.io/api/v4/search?q=${query}&lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`
+    ? `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`
     : `https://gnews.io/api/v4/top-headlines?lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`;
 
   fetch(endpoint)
@@ -19,7 +21,12 @@ function fetchNews(page = 1, query = '') {
     })
     .then(data => {
       if (data && data.articles) {
-        if (page === 1) newsContainer.innerHTML = ''; // Clear the container if it's the first page
+        if (page === 1) {
+          newsContainer.innerHTML = '';
+          allArticles = [];
+        }
+        allArticles = allArticles.concat(data.articles);
+        saveState();
         displayNews(data.articles);
       } else {
         displayError("No news found. Please try again later.");
@@ -31,20 +38,7 @@ function fetchNews(page = 1, query = '') {
     });
 }
 
-function searchNews() {
-  const query = document.getElementById('searchInput').value.trim();
-  if (!query) return;
-  currentPage = 1;
-  currentQuery = query;
-  isSearching = true;
-  fetchNews(currentPage, currentQuery);
-}
-
-function loadMore() {
-  currentPage++;
-  fetchNews(currentPage, isSearching ? currentQuery : '');
-}
-
+// Display news cards
 function displayNews(articles) {
   articles.forEach(article => {
     const card = document.createElement('div');
@@ -59,27 +53,67 @@ function displayNews(articles) {
   });
 }
 
+// Error handler
 function displayError(message) {
   newsContainer.innerHTML = `<p class="error-message">${message}</p>`;
 }
 
+// Save session state
+function saveState() {
+  localStorage.setItem('currentPage', currentPage);
+  localStorage.setItem('currentQuery', currentQuery);
+  localStorage.setItem('isSearching', JSON.stringify(isSearching));
+  localStorage.setItem('allArticles', JSON.stringify(allArticles));
+}
+
+// Load state from localStorage
+function loadState() {
+  const storedPage = localStorage.getItem('currentPage');
+  const storedQuery = localStorage.getItem('currentQuery');
+  const storedIsSearching = localStorage.getItem('isSearching');
+  const storedArticles = localStorage.getItem('allArticles');
+
+  if (storedPage) currentPage = parseInt(storedPage);
+  if (storedQuery) currentQuery = storedQuery;
+  if (storedIsSearching) isSearching = JSON.parse(storedIsSearching);
+  if (storedArticles) {
+    allArticles = JSON.parse(storedArticles);
+    displayNews(allArticles);
+  }
+}
+
+// Search handler
+function searchNews() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+  currentPage = 1;
+  currentQuery = query;
+  isSearching = true;
+  fetchNews(currentPage, currentQuery);
+}
+
+// Load more handler
+function loadMore() {
+  currentPage++;
+  fetchNews(currentPage, isSearching ? currentQuery : '');
+}
+
+// On page load
 window.onload = () => {
-  fetchNews();
+  loadState();
+  if (allArticles.length === 0) {
+    fetchNews(currentPage, currentQuery);
+  }
+
   document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
   document.getElementById('searchBtn').addEventListener('click', searchNews);
 
-  // Mobile Navigation (Hamburger Menu) Code
+  // Hamburger menu
   const nav = document.querySelector('nav');
   const hamburger = document.createElement('div');
   hamburger.classList.add('hamburger');
-  hamburger.innerHTML = '&#9776;'; // Hamburger icon
-
-  // Append the hamburger menu to the header
+  hamburger.innerHTML = '&#9776;';
   const header = document.querySelector('header');
   header.appendChild(hamburger);
-
-  // Add a click event to toggle the navigation menu
-  hamburger.addEventListener('click', () => {
-    nav.classList.toggle('open');
-  });
+  hamburger.addEventListener('click', () => nav.classList.toggle('open'));
 };
