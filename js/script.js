@@ -5,9 +5,9 @@ let currentQuery = '';
 let isSearching = false;
 let allArticles = [];
 
-// Fetch news via serverless function
+// Fetch news using the /api/news serverless function
 function fetchNews(page = 1, query = '') {
-  const endpoint = `/api/getNews?page=${page}&query=${encodeURIComponent(query)}&pageSize=${pageSize}`;
+  const endpoint = `/api/news?page=${page}&query=${encodeURIComponent(query)}&pageSize=${pageSize}`;
 
   fetch(endpoint)
     .then(response => {
@@ -39,7 +39,7 @@ function fetchNews(page = 1, query = '') {
     });
 }
 
-// Display news cards
+// Display each article
 function displayNews(articles) {
   articles.forEach(article => {
     const card = document.createElement('div');
@@ -54,10 +54,17 @@ function displayNews(articles) {
   });
 }
 
+// Display error
 function displayError(message) {
-  newsContainer.innerHTML = `<p class="error-message">${message}</p>`;
+  newsContainer.innerHTML = `
+    <div class="error-message">
+      <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" alt="Error" style="width: 60px; margin-bottom: 10px;">
+      <p>${message}</p>
+    </div>
+  `;
 }
 
+// Save state in localStorage
 function saveState() {
   localStorage.setItem('currentPage', currentPage);
   localStorage.setItem('currentQuery', currentQuery);
@@ -65,6 +72,7 @@ function saveState() {
   localStorage.setItem('allArticles', JSON.stringify(allArticles));
 }
 
+// Load state from localStorage
 function loadState() {
   const storedPage = localStorage.getItem('currentPage');
   const storedQuery = localStorage.getItem('currentQuery');
@@ -80,6 +88,7 @@ function loadState() {
   }
 }
 
+// Search button click
 function searchNews() {
   const query = document.getElementById('searchInput').value.trim();
   if (!query) return;
@@ -89,11 +98,13 @@ function searchNews() {
   fetchNews(currentPage, currentQuery);
 }
 
+// Load more button click
 function loadMore() {
   currentPage++;
   fetchNews(currentPage, isSearching ? currentQuery : '');
 }
 
+// Initialize page
 window.onload = () => {
   loadState();
   if (allArticles.length === 0) {
@@ -103,6 +114,7 @@ window.onload = () => {
   document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
   document.getElementById('searchBtn').addEventListener('click', searchNews);
 
+  // Hamburger nav toggle
   const nav = document.querySelector('nav');
   const hamburger = document.createElement('div');
   hamburger.classList.add('hamburger');
