@@ -3,7 +3,6 @@ let currentPage = 1;
 const pageSize = 10;
 let currentQuery = '';
 let isSearching = false;
-let allArticles = [];
 
 // Fetch news using the /api/news serverless function
 function fetchNews(page = 1, query = '') {
@@ -20,9 +19,7 @@ function fetchNews(page = 1, query = '') {
       if (data && data.articles && data.articles.length > 0) {
         if (page === 1) {
           newsContainer.innerHTML = '';
-          allArticles = [];
         }
-        allArticles = allArticles.concat(data.articles);
         displayNews(data.articles);
         saveState();
         document.getElementById('loadMoreBtn').style.display = 'block';
@@ -64,28 +61,22 @@ function displayError(message) {
   `;
 }
 
-// Save state in localStorage
+// Save state in localStorage (excluding articles)
 function saveState() {
   localStorage.setItem('currentPage', currentPage);
   localStorage.setItem('currentQuery', currentQuery);
   localStorage.setItem('isSearching', JSON.stringify(isSearching));
-  localStorage.setItem('allArticles', JSON.stringify(allArticles));
 }
 
-// Load state from localStorage
+// Load state from localStorage (excluding articles)
 function loadState() {
   const storedPage = localStorage.getItem('currentPage');
   const storedQuery = localStorage.getItem('currentQuery');
   const storedIsSearching = localStorage.getItem('isSearching');
-  const storedArticles = localStorage.getItem('allArticles');
 
   if (storedPage) currentPage = parseInt(storedPage);
   if (storedQuery) currentQuery = storedQuery;
   if (storedIsSearching) isSearching = JSON.parse(storedIsSearching);
-  if (storedArticles) {
-    allArticles = JSON.parse(storedArticles);
-    displayNews(allArticles);
-  }
 }
 
 // Search button click
@@ -107,9 +98,8 @@ function loadMore() {
 // Initialize page
 window.onload = () => {
   loadState();
-  if (allArticles.length === 0) {
-    fetchNews(currentPage, currentQuery);
-  }
+  // Always fetch fresh news on load
+  fetchNews(currentPage, currentQuery);
 
   document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
   document.getElementById('searchBtn').addEventListener('click', searchNews);
