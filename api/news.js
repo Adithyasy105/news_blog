@@ -8,7 +8,11 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: "Server error: Missing API key." });
   }
 
-  const endpoint = query
+  // Check if the query exists and isn't an empty string
+  const hasSearch = query && query.trim() !== '';
+
+  // Set the endpoint accordingly
+  const endpoint = hasSearch
     ? `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`
     : `https://gnews.io/api/v4/top-headlines?lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`;
 
