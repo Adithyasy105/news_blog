@@ -1,16 +1,13 @@
-const API_KEY = '058b442bb8347ba4ef40337c60dd4669';
 const newsContainer = document.getElementById('newsContainer');
 let currentPage = 1;
 const pageSize = 10;
 let currentQuery = '';
 let isSearching = false;
-let allArticles = []; // For storing loaded articles
+let allArticles = [];
 
-// Fetch from API
+// Fetch news via serverless function
 function fetchNews(page = 1, query = '') {
-  const endpoint = query
-    ? `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`
-    : `https://gnews.io/api/v4/top-headlines?lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`;
+  const endpoint = `/api/getNews?page=${page}&query=${encodeURIComponent(query)}&pageSize=${pageSize}`;
 
   fetch(endpoint)
     .then(response => {
@@ -20,16 +17,20 @@ function fetchNews(page = 1, query = '') {
       return response.json();
     })
     .then(data => {
-      if (data && data.articles) {
+      if (data && data.articles && data.articles.length > 0) {
         if (page === 1) {
           newsContainer.innerHTML = '';
           allArticles = [];
         }
         allArticles = allArticles.concat(data.articles);
-        saveState();
         displayNews(data.articles);
+        saveState();
+        document.getElementById('loadMoreBtn').style.display = 'block';
       } else {
-        displayError("No news found. Please try again later.");
+        if (page === 1) {
+          displayError("No news found. Try a different keyword.");
+        }
+        document.getElementById('loadMoreBtn').style.display = 'none';
       }
     })
     .catch(error => {
@@ -53,12 +54,10 @@ function displayNews(articles) {
   });
 }
 
-// Error handler
 function displayError(message) {
   newsContainer.innerHTML = `<p class="error-message">${message}</p>`;
 }
 
-// Save session state
 function saveState() {
   localStorage.setItem('currentPage', currentPage);
   localStorage.setItem('currentQuery', currentQuery);
@@ -66,7 +65,6 @@ function saveState() {
   localStorage.setItem('allArticles', JSON.stringify(allArticles));
 }
 
-// Load state from localStorage
 function loadState() {
   const storedPage = localStorage.getItem('currentPage');
   const storedQuery = localStorage.getItem('currentQuery');
@@ -82,7 +80,6 @@ function loadState() {
   }
 }
 
-// Search handler
 function searchNews() {
   const query = document.getElementById('searchInput').value.trim();
   if (!query) return;
@@ -92,13 +89,11 @@ function searchNews() {
   fetchNews(currentPage, currentQuery);
 }
 
-// Load more handler
 function loadMore() {
   currentPage++;
   fetchNews(currentPage, isSearching ? currentQuery : '');
 }
 
-// On page load
 window.onload = () => {
   loadState();
   if (allArticles.length === 0) {
@@ -108,7 +103,6 @@ window.onload = () => {
   document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
   document.getElementById('searchBtn').addEventListener('click', searchNews);
 
-  // Hamburger menu
   const nav = document.querySelector('nav');
   const hamburger = document.createElement('div');
   hamburger.classList.add('hamburger');
