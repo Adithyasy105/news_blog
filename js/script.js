@@ -82,6 +82,7 @@ function resetToHome() {
   currentQuery = '';
   isSearching = false;
   document.getElementById('searchInput').value = '';
+  newsContainer.innerHTML = '';
   fetchNews(currentPage);
 }
 
