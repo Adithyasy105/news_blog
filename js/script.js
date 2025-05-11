@@ -4,9 +4,9 @@ const pageSize = 10;
 let currentQuery = '';
 let isSearching = false;
 
-// Fetch news using the /api/news serverless function
+// Fetch news from API
 function fetchNews(page = 1, query = '') {
-  const endpoint = `/api/news?page=${page}&query=${encodeURIComponent(query)}&pageSize=${pageSize}`;
+  const endpoint = `/api/news?page=${page}&query=${encodeURIComponent(query)}&pageSize=${pageSize}&nocache=${Date.now()}`;
 
   fetch(endpoint)
     .then(response => {
@@ -21,7 +21,6 @@ function fetchNews(page = 1, query = '') {
           newsContainer.innerHTML = '';
         }
         displayNews(data.articles);
-        saveState();
         document.getElementById('loadMoreBtn').style.display = 'block';
       } else {
         if (page === 1) {
@@ -36,7 +35,7 @@ function fetchNews(page = 1, query = '') {
     });
 }
 
-// Display each article
+// Display news cards
 function displayNews(articles) {
   articles.forEach(article => {
     const card = document.createElement('div');
@@ -51,7 +50,7 @@ function displayNews(articles) {
   });
 }
 
-// Display error
+// Display error message
 function displayError(message) {
   newsContainer.innerHTML = `
     <div class="error-message">
@@ -61,25 +60,7 @@ function displayError(message) {
   `;
 }
 
-// Save state in localStorage (excluding articles)
-function saveState() {
-  localStorage.setItem('currentPage', currentPage);
-  localStorage.setItem('currentQuery', currentQuery);
-  localStorage.setItem('isSearching', JSON.stringify(isSearching));
-}
-
-// Load state from localStorage (excluding articles)
-function loadState() {
-  const storedPage = localStorage.getItem('currentPage');
-  const storedQuery = localStorage.getItem('currentQuery');
-  const storedIsSearching = localStorage.getItem('isSearching');
-
-  if (storedPage) currentPage = parseInt(storedPage);
-  if (storedQuery) currentQuery = storedQuery;
-  if (storedIsSearching) isSearching = JSON.parse(storedIsSearching);
-}
-
-// Search button click
+// Search handler
 function searchNews() {
   const query = document.getElementById('searchInput').value.trim();
   if (!query) return;
@@ -89,27 +70,39 @@ function searchNews() {
   fetchNews(currentPage, currentQuery);
 }
 
-// Load more button click
+// Load more handler
 function loadMore() {
   currentPage++;
   fetchNews(currentPage, isSearching ? currentQuery : '');
 }
 
-// Initialize page
+// Clear search state
+function resetToHome() {
+  currentPage = 1;
+  currentQuery = '';
+  isSearching = false;
+  document.getElementById('searchInput').value = '';
+  fetchNews(currentPage);
+}
+
+// Initialize
 window.onload = () => {
-  loadState();
-  // Always fetch fresh news on load
-  fetchNews(currentPage, currentQuery);
+  resetToHome();
 
   document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
   document.getElementById('searchBtn').addEventListener('click', searchNews);
 
-  // Hamburger nav toggle
+  // Optional: clear search if clicking logo or back to home
+  const logo = document.querySelector('.logo');
+  if (logo) {
+    logo.addEventListener('click', resetToHome);
+  }
+
+  // Hamburger nav
   const nav = document.querySelector('nav');
   const hamburger = document.createElement('div');
   hamburger.classList.add('hamburger');
   hamburger.innerHTML = '&#9776;';
-  const header = document.querySelector('header');
-  header.appendChild(hamburger);
+  document.querySelector('header').appendChild(hamburger);
   hamburger.addEventListener('click', () => nav.classList.toggle('open'));
 };
