@@ -1,6 +1,5 @@
-// /api/news.js
 export default async function handler(req, res) {
-  const { query = '', page = 1, pageSize = 10 } = req.query;
+  const { query, page = 1, pageSize = 10 } = req.query;
   const API_KEY = process.env.GNEWS_API_KEY;
 
   if (!API_KEY) {
@@ -8,9 +7,12 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: "Server error: Missing API key." });
   }
 
-  // Use 'latest' as the default search query to allow pagination
-  const searchQuery = query.trim() === '' ? 'latest' : query.trim();
+  // Prepare the search query
+  const rawQuery = query ? query.trim() : '';
+  const today = new Date().toISOString().split('T')[0]; // e.g., "2025-05-12"
+  const searchQuery = rawQuery === '' ? `latest ${today}` : rawQuery;
 
+  // Always use search endpoint to avoid cached top-headlines
   const endpoint = `https://gnews.io/api/v4/search?q=${encodeURIComponent(searchQuery)}&lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`;
 
   try {
