@@ -1,32 +1,33 @@
 export default async function handler(req, res) {
-  const { query, page = 1, pageSize = 10 } = req.query;
+  let { query, page = 1, pageSize = 10 } = req.query;
   const API_KEY = process.env.GNEWS_API_KEY;
 
   if (!API_KEY) {
     console.error("Missing GNEWS_API_KEY in environment variables");
-    return res.status(500).json({ message: "Server error: Missing API key." });
+    return res.status(500).json({ message: "Missing API Key" });
   }
 
-  // Prepare the search query
-  const rawQuery = query ? query.trim() : '';
-  const today = new Date().toISOString().split('T')[0]; // e.g., "2025-05-12"
-  const searchQuery = rawQuery === '' ? `latest ${today}` : rawQuery;
+  // If query is empty or just whitespace, set a default query
+  if (!query || query.trim() === "") {
+    const today = new Date().toISOString().split('T')[0]; // e.g. "2025-05-12"
+    query = `latest news ${today}`;
+  }
 
-  // Always use search endpoint to avoid cached top-headlines
-  const endpoint = `https://gnews.io/api/v4/search?q=${encodeURIComponent(searchQuery)}&lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`;
+  const endpoint = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=${pageSize}&page=${page}&token=${API_KEY}`;
 
   try {
     const response = await fetch(endpoint);
+
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`GNews API error: ${response.status} - ${errorBody}`);
-      return res.status(response.status).json({ message: "Error from GNews API" });
+      const error = await response.text();
+      console.error(`GNews API Error: ${response.status} - ${error}`);
+      return res.status(response.status).json({ message: "Error fetching news from GNews" });
     }
 
     const data = await response.json();
     res.status(200).json(data);
   } catch (err) {
-    console.error("Unexpected error fetching news:", err);
-    res.status(500).json({ message: "Unexpected server error while fetching news." });
+    console.error("Unexpected error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 }
