@@ -169,6 +169,9 @@ nav a:hover {
   font-weight: bold;
   text-decoration: none;
   transition: color 0.2s ease;
+  position: fixed;
+  bottom: 20px;  /* distance from bottom */
+  right: 20px;
 }
 
 .news-card a:hover {
